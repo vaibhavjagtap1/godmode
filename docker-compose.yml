@@ -21,7 +21,7 @@ services:
     ports:
       - "4000:4000"
     environment:
-      DATABASE_URL: ******postgres:5432/behindtheemail
+      DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: redis://redis:6379
     depends_on:
       - postgres

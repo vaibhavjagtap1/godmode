@@ -2,7 +2,11 @@ export class ContactLeakService {
   redact(value: string): string {
     if (value.includes('@')) {
       const [name, domain] = value.split('@');
-      return `${name.slice(0, 2)}***@${domain}`;
+      const safeName = (name ?? '').trim();
+      if (safeName.length < 2) {
+        return `***@${domain ?? ''}`;
+      }
+      return `${safeName.slice(0, 2)}***@${domain}`;
     }
 
     const cleaned = value.replace(/\D/g, '');

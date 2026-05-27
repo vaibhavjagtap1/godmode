@@ -7,16 +7,18 @@ import { RiskScoreGauge } from '@/components/report/RiskScoreGauge';
 
 export default function LookupReportPage({ params }: { params: { id: string } }) {
   const [payload, setPayload] = useState<Record<string, unknown> | null>(null);
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/v1/searches/${params.id}`, { headers: { 'x-user-id': 'demo' } })
+    const userId = typeof window !== 'undefined' ? window.localStorage.getItem('bte_user_id') ?? '' : '';
+    fetch(`${apiBase}/api/v1/searches/${params.id}`, { headers: userId ? { 'x-user-id': userId } : {} })
       .then(async (res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.resultJson) {
           setPayload(data.resultJson as Record<string, unknown>);
         }
       });
-  }, [params.id]);
+  }, [apiBase, params.id]);
 
   const risk = (payload?.riskScore as { score?: number } | undefined)?.score ?? 0;
   const identityFlags = ((payload?.identity as { identityFlags?: unknown } | undefined)?.identityFlags ?? {}) as Record<string, unknown>;

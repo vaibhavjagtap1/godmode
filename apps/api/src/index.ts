@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { env } from './lib/env.js';
-import { asAppError } from './lib/errors.js';
+import { AppError, asAppError } from './lib/errors.js';
 import lookupRoutes from './routes/lookup.js';
 import searchesRoutes from './routes/searches.js';
 import bulkRoutes from './routes/bulk.js';
@@ -14,9 +14,22 @@ import { unauthenticatedRateLimit } from './middleware/rateLimit.js';
 
 const app = express();
 
+declare module 'express-serve-static-core' {
+  interface Request {
+    rawBody?: Buffer;
+  }
+}
+
 app.use(helmet());
 app.use(cors());
-app.use(express.json({ limit: '2mb' }));
+app.use(
+  express.json({
+    limit: '2mb',
+    verify: (req, _res, buf) => {
+      (req as express.Request).rawBody = buf;
+    }
+  })
+);
 app.use(morgan('combined'));
 app.use(unauthenticatedRateLimit);
 
@@ -52,7 +65,7 @@ app.post('/optout', async (req, res, next) => {
     const { prisma } = await import('./lib/prisma.js');
     const email = String(req.body?.email ?? '').trim().toLowerCase();
     if (!email) {
-      throw new Error('Email is required');
+      throw new AppError('Email is required', 'EMAIL_REQUIRED', 400);
     }
 
     const cacheService = new CacheService();

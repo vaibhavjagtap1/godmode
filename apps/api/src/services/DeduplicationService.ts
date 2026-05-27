@@ -1,5 +1,10 @@
 import levenshtein from 'fast-levenshtein';
 
+const MAX_EDIT_DISTANCE = 2;
+const CLUSTER_WEIGHT = 20;
+const DISTANCE_WEIGHT = 10;
+const DISTANCE_BASE = 3;
+
 export interface DuplicateGroup {
   canonical: string;
   duplicates: string[];
@@ -34,7 +39,7 @@ export class DeduplicationService {
       .filter((email) => (map.get(email) ?? 0) > 1)
       .map((email) => ({
         canonical: email,
-        duplicates: Array.from({ length: (map.get(email) ?? 0) - 1 }, () => email),
+        duplicates: [email],
         occurrenceCount: map.get(email) ?? 1
       }));
 
@@ -60,7 +65,7 @@ export class DeduplicationService {
         }
 
         const distance = levenshtein.get(candidate, other);
-        if (distance <= 2) {
+        if (distance <= MAX_EDIT_DISTANCE) {
           similar.push(other);
           editDistances.push(distance);
           seen.add(other);
@@ -72,7 +77,11 @@ export class DeduplicationService {
           representative: candidate,
           similar,
           editDistances,
-          suspicionScore: Math.min(100, similar.length * 20 + editDistances.reduce((a, b) => a + (3 - b) * 10, 0))
+          suspicionScore: Math.min(
+            100,
+            similar.length * CLUSTER_WEIGHT +
+              editDistances.reduce((total, distance) => total + (DISTANCE_BASE - distance) * DISTANCE_WEIGHT, 0)
+          )
         });
       }
 

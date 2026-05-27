@@ -8,7 +8,8 @@ export class PasteService {
       return [];
     }
 
-    const query = `\"${email}\" site:pastebin.com OR site:rentry.co OR site:ghostbin.com OR site:controlc.com`;
+    const safeEmail = email.replace(/[\"\\]/g, '').trim().toLowerCase();
+    const query = `\"${safeEmail}\" site:pastebin.com OR site:rentry.co OR site:ghostbin.com OR site:controlc.com`;
     try {
       const response = await fetch(`https://www.googleapis.com/customsearch/v1?key=${encodeURIComponent(key)}&cx=${encodeURIComponent(cx)}&q=${encodeURIComponent(query)}`);
       if (!response.ok) {

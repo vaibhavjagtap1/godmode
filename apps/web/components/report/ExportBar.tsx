@@ -18,8 +18,10 @@ export function ExportBar({ id, payload }: { id: string; payload: Record<string,
             const anchor = document.createElement('a');
             anchor.href = url;
             anchor.download = `${id}.json`;
+            document.body.appendChild(anchor);
             anchor.click();
-            URL.revokeObjectURL(url);
+            anchor.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 250);
           }}
         >
           JSON

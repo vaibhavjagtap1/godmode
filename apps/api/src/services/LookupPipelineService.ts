@@ -74,13 +74,8 @@ export class LookupPipelineService {
     const breaches = breachesRes.status === 'fulfilled' ? breachesRes.value : [];
     const pastes = [...(hibpPastesRes.status === 'fulfilled' ? hibpPastesRes.value : []), ...(csePastesRes.status === 'fulfilled' ? csePastesRes.value : [])];
 
-    const nameConsistency = githubRes.status === 'fulfilled' && linkedinRes.status === 'fulfilled' && githubRes.value?.name && linkedinRes.value?.full_name && githubRes.value.name !== linkedinRes.value.full_name ? 'LOW' : 'HIGH';
-    const identityName =
-      linkedinRes.status === 'fulfilled'
-        ? String(linkedinRes.value?.full_name ?? '') || (githubRes.status === 'fulfilled' ? githubRes.value?.name ?? null : null)
-        : githubRes.status === 'fulfilled'
-          ? githubRes.value?.name ?? null
-          : null;
+    const nameConsistency = this.determineNameConsistency(linkedinRes, githubRes);
+    const identityName = this.resolveIdentityName(linkedinRes, githubRes);
 
     const dedupe = options.includeDuplicateCheck
       ? this.dedupeService.crossProfileDedup([
@@ -162,5 +157,41 @@ export class LookupPipelineService {
     ]);
 
     return result;
+  }
+
+  private determineNameConsistency(
+    linkedinRes: PromiseSettledResult<Record<string, unknown> | null>,
+    githubRes: PromiseSettledResult<{ name: string | null } | null>
+  ): 'HIGH' | 'MEDIUM' | 'LOW' {
+    if (linkedinRes.status !== 'fulfilled' || githubRes.status !== 'fulfilled') {
+      return 'MEDIUM';
+    }
+
+    const linkedinName = String(linkedinRes.value?.full_name ?? '').trim();
+    const githubName = String(githubRes.value?.name ?? '').trim();
+
+    if (!linkedinName || !githubName) {
+      return 'MEDIUM';
+    }
+
+    return linkedinName === githubName ? 'HIGH' : 'LOW';
+  }
+
+  private resolveIdentityName(
+    linkedinRes: PromiseSettledResult<Record<string, unknown> | null>,
+    githubRes: PromiseSettledResult<{ name: string | null } | null>
+  ): string | null {
+    if (linkedinRes.status === 'fulfilled') {
+      const linkedinName = String(linkedinRes.value?.full_name ?? '').trim();
+      if (linkedinName) {
+        return linkedinName;
+      }
+    }
+
+    if (githubRes.status === 'fulfilled') {
+      return githubRes.value?.name ?? null;
+    }
+
+    return null;
   }
 }

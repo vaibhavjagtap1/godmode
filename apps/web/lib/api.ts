@@ -1,9 +1,18 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
+const parseErrorMessage = async (response: Response): Promise<string> => {
+  try {
+    const payload = (await response.json()) as { error?: string; message?: string };
+    return payload.error ?? payload.message ?? response.statusText;
+  } catch {
+    return response.statusText;
+  }
+};
+
 export async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, { cache: 'no-store' });
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    throw new Error(`Request failed: ${response.status} ${await parseErrorMessage(response)}`);
   }
   return (await response.json()) as T;
 }
@@ -16,7 +25,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    throw new Error(`Request failed: ${response.status} ${await parseErrorMessage(response)}`);
   }
   return (await response.json()) as T;
 }
