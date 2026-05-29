@@ -669,7 +669,7 @@ Prisma is an Object-Relational Mapper that generates typed clients from the sche
 1. `apps/api/src/index.ts`.  
 2. As JSON with `error`, `code`, and `statusCode`.  
 3. `requirePlan` from `planGuard.ts`.  
-4. Authorization header with a ******  
+4. Authorization header with a bearer token  
 5. API keys are created but not used for access control.  
 6. Express JSON parser stores raw body in `req.rawBody`.
 
@@ -680,11 +680,11 @@ Prisma is an Object-Relational Mapper that generates typed clients from the sche
 **Base URL (local):** `http://localhost:4000`
 
 ### Authentication
-Most endpoints require a JWT passed as a ****** in the Authorization header.
+Most endpoints require a JWT passed as a bearer token in the Authorization header.
 
 ### Common headers
 - `Content-Type: application/json` for JSON bodies.
-- Authorization header with a ****** for authenticated endpoints.
+- Authorization header with a bearer token for authenticated endpoints.
 - Stripe webhooks require the `stripe-signature` header and the raw body.
 
 ### Error format
@@ -703,7 +703,7 @@ Most endpoints require a JWT passed as a ****** in the Authorization header.
 ### Example variables (optional)
 ```bash
 API_BASE=http://localhost:4000
-AUTH_HEADER="Authorization: ******"
+AUTH_HEADER="Authorization: bearer <token>"
 ```
 
 ### Endpoints
@@ -711,7 +711,7 @@ AUTH_HEADER="Authorization: ******"
 #### `POST /api/v1/lookup`
 - **Purpose:** Run single email lookup.
 - **Method:** POST
-- **Headers:** Content-Type, Authorization (******)
+- **Headers:** Content-Type, Authorization (******
 - **Authentication:** Required
 - **Request Body:** `{ "email": "user@example.com", "options": { "includePastes": true } }`
 - **Response:** Full intelligence report JSON.
@@ -724,13 +724,13 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: POST
     - URL: `{{API_BASE}}/api/v1/lookup`
-    - Headers: Authorization (******) Content-Type: application/json
+    - Headers: Authorization (****** Content-Type: application/json
     - Body: raw JSON `{ "email": "user@example.com" }`
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/lookup`, {
       method: 'POST',
-      headers: { Authorization: '******', 'Content-Type': 'application/json' },
+      headers: { Authorization: 'bearer <token>', 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'user@example.com' })
     });
     ```
@@ -738,7 +738,7 @@ AUTH_HEADER="Authorization: ******"
 #### `GET /api/v1/searches`
 - **Purpose:** List search history for user.
 - **Method:** GET
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required
 - **Response:** Array of Search records.
 - **Error Codes:** 401, 500
@@ -750,18 +750,18 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: GET
     - URL: `{{API_BASE}}/api/v1/searches`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/searches`, {
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `GET /api/v1/searches/:id`
 - **Purpose:** Retrieve a specific search.
 - **Method:** GET
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required
 - **Response:** Search record.
 - **Error Codes:** 401, 404, 500
@@ -773,18 +773,18 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: GET
     - URL: `{{API_BASE}}/api/v1/searches/{id}`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/searches/${id}`, {
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `DELETE /api/v1/searches/:id`
 - **Purpose:** Delete a search.
 - **Method:** DELETE
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required
 - **Response:** 204 No Content.
 - **Error Codes:** 401, 404, 500
@@ -796,19 +796,19 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: DELETE
     - URL: `{{API_BASE}}/api/v1/searches/{id}`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/searches/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `POST /api/v1/bulk`
 - **Purpose:** Start bulk lookup job.
 - **Method:** POST
-- **Headers:** Content-Type, Authorization (******)
+- **Headers:** Content-Type, Authorization (******
 - **Authentication:** Required (PRO/ENTERPRISE)
 - **Request Body:** `{ "emails": ["a@b.com", "c@d.com"] }`
 - **Response:** Job metadata with deduplication summary.
@@ -821,13 +821,13 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: POST
     - URL: `{{API_BASE}}/api/v1/bulk`
-    - Headers: Authorization (******) Content-Type: application/json
+    - Headers: Authorization (****** Content-Type: application/json
     - Body: raw JSON `{ "emails": ["a@b.com", "c@d.com"] }`
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/bulk`, {
       method: 'POST',
-      headers: { Authorization: '******', 'Content-Type': 'application/json' },
+      headers: { Authorization: 'bearer <token>', 'Content-Type': 'application/json' },
       body: JSON.stringify({ emails: ['a@b.com', 'c@d.com'] })
     });
     ```
@@ -835,7 +835,7 @@ AUTH_HEADER="Authorization: ******"
 #### `GET /api/v1/bulk/:jobId`
 - **Purpose:** Get bulk job status.
 - **Method:** GET
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required (PRO/ENTERPRISE)
 - **Response:** Job status with progress and results.
 - **Error Codes:** 401, 403, 404, 500
@@ -847,18 +847,18 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: GET
     - URL: `{{API_BASE}}/api/v1/bulk/{jobId}`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/bulk/${jobId}`, {
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `GET /api/v1/bulk/:jobId/export`
 - **Purpose:** Get bulk job results.
 - **Method:** GET
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required (PRO/ENTERPRISE)
 - **Response:** Array of results.
 - **Error Codes:** 401, 403, 404, 500
@@ -870,18 +870,18 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: GET
     - URL: `{{API_BASE}}/api/v1/bulk/{jobId}/export`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/bulk/${jobId}/export`, {
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `POST /api/v1/keys`
 - **Purpose:** Create API key.
 - **Method:** POST
-- **Headers:** Content-Type, Authorization (******)
+- **Headers:** Content-Type, Authorization (******
 - **Authentication:** Required
 - **Request Body:** `{ "name": "Default key" }`
 - **Response:** API key record with raw key.
@@ -894,13 +894,13 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: POST
     - URL: `{{API_BASE}}/api/v1/keys`
-    - Headers: Authorization (******) Content-Type: application/json
+    - Headers: Authorization (****** Content-Type: application/json
     - Body: raw JSON `{ "name": "Default key" }`
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/keys`, {
       method: 'POST',
-      headers: { Authorization: '******', 'Content-Type': 'application/json' },
+      headers: { Authorization: 'bearer <token>', 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'Default key' })
     });
     ```
@@ -908,7 +908,7 @@ AUTH_HEADER="Authorization: ******"
 #### `GET /api/v1/keys`
 - **Purpose:** List API keys.
 - **Method:** GET
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required
 - **Response:** Array of API key metadata.
 - **Error Codes:** 401, 500
@@ -920,18 +920,18 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: GET
     - URL: `{{API_BASE}}/api/v1/keys`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/keys`, {
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `DELETE /api/v1/keys/:id`
 - **Purpose:** Delete API key.
 - **Method:** DELETE
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required
 - **Response:** 204 No Content.
 - **Error Codes:** 401, 500
@@ -943,19 +943,19 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: DELETE
     - URL: `{{API_BASE}}/api/v1/keys/{id}`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/keys/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `GET /api/v1/usage`
 - **Purpose:** Show usage and plan.
 - **Method:** GET
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required
 - **Response:** Usage and plan metadata.
 - **Error Codes:** 401, 500
@@ -967,18 +967,18 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: GET
     - URL: `{{API_BASE}}/api/v1/usage`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/usage`, {
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
 #### `GET /api/v1/profile/export/:id`
 - **Purpose:** Export a search result.
 - **Method:** GET
-- **Headers:** Authorization (******)
+- **Headers:** Authorization (******
 - **Authentication:** Required
 - **Response:** JSON report payload.
 - **Error Codes:** 401, 404, 500
@@ -990,11 +990,11 @@ AUTH_HEADER="Authorization: ******"
   - **Postman**
     - Method: GET
     - URL: `{{API_BASE}}/api/v1/profile/export/{id}`
-    - Headers: Authorization (******)
+    - Headers: Authorization (******
   - **JavaScript (fetch)**
     ```js
     await fetch(`${API_BASE}/api/v1/profile/export/${id}`, {
-      headers: { Authorization: '******' }
+      headers: { Authorization: 'bearer <token>' }
     });
     ```
 
@@ -1109,7 +1109,7 @@ AUTH_HEADER="Authorization: ******"
 1. `POST /api/v1/lookup`.  
 2. `GET /api/health`.  
 3. `/api/v1/bulk*` endpoints.  
-4. Authorization header with a ******  
+4. Authorization header with a bearer token  
 5. `POST /api/webhooks/stripe`.  
 6. It allows users to opt out without login.
 
