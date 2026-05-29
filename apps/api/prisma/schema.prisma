@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  PLUS
+  PRO
+  ENTERPRISE
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  image        String?
+  passwordHash String?
+  plan         Plan      @default(FREE)
+  searchesUsed Int       @default(0)
+  searchLimit  Int       @default(5)
+  stripeId     String?
+  createdAt    DateTime  @default(now())
+  searches     Search[]
+  apiKeys      ApiKey[]
+}
+
+model Search {
+  id          String   @id @default(cuid())
+  userId      String
+  email       String
+  resultJson  Json
+  riskScore   Int
+  riskLevel   String
+  breachCount Int
+  cached      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  userId    String
+  keyHash   String   @unique
+  name      String
+  requests  Int      @default(0)
+  lastUsed  DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Cache {
+  emailHash String   @id
+  resultJson Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model OptOut {
+  emailHash  String   @id
+  createdAt  DateTime @default(now())
+}
